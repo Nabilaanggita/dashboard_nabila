@@ -1,151 +1,120 @@
 import streamlit as st
+import numpy as np
 import pandas as pd
-import math
-from pathlib import Path
+import matplotlib.pyplot as plt
+import seaborn as sns
+import datetime as dt
+import calendar
 
-# Set the title and favicon that appear in the Browser's tab bar.
-st.set_page_config(
-    page_title='GDP dashboard',
-    page_icon=':earth_americas:', # This is an emoji shortcode. Could be a URL too.
+
+#Gathering 2 data day and hour dashboard/data_siap.csvdashboard/data_siap.csv
+df = pd.read_csv("data/data/day.csv")
+day_df = pd.read_csv("data/data/day.csv")
+hour_df = pd.read_csv("data/data/hour.csv")
+
+new_order_df = pd.merge(
+    left=day_df,
+    right=hour_df,
+    how="inner",
+    left_on="instant",
+    right_on="instant"
 )
 
-# -----------------------------------------------------------------------------
-# Declare some useful functions.
+# Navigation bar with "Beranda" (Home) and "Filter" options
+selected_page = st.sidebar.selectbox(
+    "Pilih Halaman (Select Page)",
+    options=["Beranda (Home)", "Filter (Filter)"])
 
-@st.cache_data
-def get_gdp_data():
-    """Grab GDP data from a CSV file.
+if selected_page == "Beranda (Home)":  
+    # Judul dashboard
+    st.title("Dashboard ")
+    st.write("Data Penyewa sepeda")
+    # Menampilkan DataFrame
+    st.write("## Data hasil ")
+    st.dataframe(df)
 
-    This uses caching to avoid having to read the file every time. If we were
-    reading from an HTTP endpoint instead of a file, it's a good idea to set
-    a maximum age to the cache with the TTL argument: @st.cache_data(ttl='1d')
-    """
+    # Statistik deskriptif
+    st.write("## Statistik Deskriptif")
+    st.write(df.describe())
 
-    # Instead of a CSV on disk, you could read from an HTTP endpoint here too.
-    DATA_FILENAME = Path(__file__).parent/'data/gdp_data.csv'
-    raw_gdp_df = pd.read_csv(DATA_FILENAME)
-
-    MIN_YEAR = 1960
-    MAX_YEAR = 2022
-
-    # The data above has columns like:
-    # - Country Name
-    # - Country Code
-    # - [Stuff I don't care about]
-    # - GDP for 1960
-    # - GDP for 1961
-    # - GDP for 1962
-    # - ...
-    # - GDP for 2022
-    #
-    # ...but I want this instead:
-    # - Country Name
-    # - Country Code
-    # - Year
-    # - GDP
-    #
-    # So let's pivot all those year-columns into two: Year and GDP
-    gdp_df = raw_gdp_df.melt(
-        ['Country Code'],
-        [str(x) for x in range(MIN_YEAR, MAX_YEAR + 1)],
-        'Year',
-        'GDP',
+#filter memunculkan fitur yang diinginkan
+# Filter items dengan selectbox
+elif selected_page == "Filter (Filter)":
+    selected_filters = st.multiselect(
+        "Pilih Filter",
+        options=["temp", "atemp", "weathersit", "year"],
     )
 
-    # Convert years from string to integers
-    gdp_df['Year'] = pd.to_numeric(gdp_df['Year'])
+    if "temp" in selected_filters:
+        st.write("## Melihat Data Berdasarkan `temp_y`")
+        st.write(new_order_df.groupby(by="temp_y").agg({
+            "instant": "nunique",
+            "cnt_y": ["max", "min", "mean", "std"]}))
+        st.write("# Pengaruh Temp terhadap cnt (jumlah penyewa)")
+        fig, ax = plt.subplots()
+        temp_means = new_order_df.groupby('temp_y')['cnt_y'].mean()
+        ax.bar(temp_means.index, temp_means.values)
+        ax.set_xlabel("Temp")
+        ax.set_ylabel("Rata-rata cnt")
+        st.pyplot(fig)
 
-    return gdp_df
+    if "atemp" in selected_filters:
+        st.write("## Melihat Data Berdasarkan `atemp_y`")
+        st.write(new_order_df.groupby(by="atemp_y").agg({
+            "instant": "nunique",
+            "cnt_y": ["max", "min", "mean", "std"]}))
+        st.write("# Pengaruh Atemp terhadap cnt (jumlah penyewa)")
+        fig, ax = plt.subplots()
+        atemp_means = new_order_df.groupby('atemp_y')['cnt_y'].mean()
+        ax.bar(atemp_means.index, atemp_means.values)
+        ax.set_xlabel("atemp")
+        ax.set_ylabel("Rata-rata cnt")
+        st.pyplot(fig)
 
-gdp_df = get_gdp_data()
+    if "weathersit" in selected_filters:
+        st.write("## Melihat Data Berdasarkan `weathersit_y`")
+        st.write("1. Clear, Few clouds, Partly cloudy")
+        st.write("2. Mist + Cloudy, Mist + Broken clouds, Mist + Few clouds, Mist")
+        st.write("3. Light Snow, Light Rain + Thunderstorm + Scattered clouds, Light Rain + Scattered clouds")
+        st.write("4. Heavy Rain + Ice Pellets + Thunderstorm + Mist, Snow + Fog")
+        st.write(new_order_df.groupby(by="weathersit_y").agg({
+            "instant": "nunique",
+            "cnt_y": ["max", "min", "mean", "std"]}))
+        st.write("# Pengaruh Weathersit terhadap cnt(jumlah penyewa)")
+        fig, ax = plt.subplots()
+        weathersit_means = new_order_df.groupby('weathersit_y')['cnt_y'].mean()
+        ax.bar(weathersit_means.index, weathersit_means.values)
+        ax.set_xlabel("Weathersit")
+        ax.set_ylabel("Rata-rata cnt")
+        st.pyplot(fig)
 
-# -----------------------------------------------------------------------------
-# Draw the actual page
+    if "year" in selected_filters:
+        st.write("## Melihat Data Berdasarkan `yr_y`")
+        st.write(new_order_df.groupby(by="yr_y").agg({
+            "instant": "nunique",
+            "cnt_y": ["max", "min", "mean", "std"]}))
+        st.write("# Pengaruh Tahun terhadap cnt (jumlah penyewa)")
+        fig, ax = plt.subplots()
+        year_means = new_order_df.groupby('yr_y')['cnt_y'].mean()
+        ax.bar(year_means.index, year_means.values)
+        ax.set_xlabel("Tahun")
+        ax.set_ylabel("Rata-rata cnt")
+        st.pyplot(fig)
 
-# Set the title that appears at the top of the page.
-'''
-# :earth_americas: GDP dashboard
+#menampilkan data
+df.describe()
+df.head()
 
-Browse GDP data from the [World Bank Open Data](https://data.worldbank.org/) website. As you'll
-notice, the data only goes to 2022 right now, and datapoints for certain years are often missing.
-But it's otherwise a great (and did I mention _free_?) source of data.
-'''
-
-# Add some spacing
-''
-''
-
-min_value = gdp_df['Year'].min()
-max_value = gdp_df['Year'].max()
-
-from_year, to_year = st.slider(
-    'Which years are you interested in?',
-    min_value=min_value,
-    max_value=max_value,
-    value=[min_value, max_value])
-
-countries = gdp_df['Country Code'].unique()
-
-if not len(countries):
-    st.warning("Select at least one country")
-
-selected_countries = st.multiselect(
-    'Which countries would you like to view?',
-    countries,
-    ['DEU', 'FRA', 'GBR', 'BRA', 'MEX', 'JPN'])
-
-''
-''
-''
-
-# Filter the data
-filtered_gdp_df = gdp_df[
-    (gdp_df['Country Code'].isin(selected_countries))
-    & (gdp_df['Year'] <= to_year)
-    & (from_year <= gdp_df['Year'])
-]
-
-st.header('GDP over time', divider='gray')
-
-''
-
-st.line_chart(
-    filtered_gdp_df,
-    x='Year',
-    y='GDP',
-    color='Country Code',
+# tampilkan histogram tiap minggunya
+plt.figure(figsize=(9,6))
+sns.lineplot(
+    x="weekday",
+    y="cnt",
+    data=df,
+    palette=["navy","aqua", "yellow", "orange", "pink","magenta"]
 )
 
-''
-''
-
-
-first_year = gdp_df[gdp_df['Year'] == from_year]
-last_year = gdp_df[gdp_df['Year'] == to_year]
-
-st.header(f'GDP in {to_year}', divider='gray')
-
-''
-
-cols = st.columns(4)
-
-for i, country in enumerate(selected_countries):
-    col = cols[i % len(cols)]
-
-    with col:
-        first_gdp = first_year[first_year['Country Code'] == country]['GDP'].iat[0] / 1000000000
-        last_gdp = last_year[last_year['Country Code'] == country]['GDP'].iat[0] / 1000000000
-
-        if math.isnan(first_gdp):
-            growth = 'n/a'
-            delta_color = 'off'
-        else:
-            growth = f'{last_gdp / first_gdp:,.2f}x'
-            delta_color = 'normal'
-
-        st.metric(
-            label=f'{country} GDP',
-            value=f'{last_gdp:,.0f}B',
-            delta=growth,
-            delta_color=delta_color
-        )
+plt.xlabel("weekday")
+plt.ylabel("Total Rides")
+plt.title("Count by weekday")
+plt.show()
