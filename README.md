@@ -1,12 +1,11 @@
 
 link untuk google collab https://colab.research.google.com/drive/1Jn-9MO4WuO7qCWKG1eujd6dxXIFMXOBo#scrollTo=h_Sh51Xy8DC1
-sudah saya run setiap kode nya. dan menyimpan datanya di dalam drive yang sudah saya buka aksesnya
-dan data yang baru hasil dari data wragling saya beri nama data_siap di dalam folder dashboard
+sudah saya run setiap kode nya. data saya simpan di link github raw (sudah langsung mengambil file nya)
 #Langkah langkah membuka dan menjalankan file collab
 1. klik link yang sudah saya sediakan
 2. instal !pip streamlit dan semua libraryb yang dibutuhkan
 3. jalankan library
-4. untuk import data sambungkan denga drive karena saya menyimpan file datanya di drive
+4. untuk import data sambungkan dengan github
 5. run semua
 6. hasil sudah terlihat
 
@@ -20,5 +19,5 @@ untuk kode program streamlit saya beri nama streamlit_app.py
 1. unduh file
 2. import atau upload ke dalam codespace/vscode atau yanng anda miliki
 3. install semua library
-4. jalankan file streamlit menggunakan (
+4. jalankan file streamlit menggunakan  ( streamlit run streamlit_app.py)
 5. lihat link pada port untuk melihat hasilnya
