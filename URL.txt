@@ -1,2 +1,14 @@
+link streamlit :
 
-https://animated-palm-tree-69rg4qwppx9qh95p-8501.app.github.dev/
+1. dev mode
+https://super-duper-lamp-r4rgpqwxx66gfpgp9.github.dev/
+2. hasil browsernya
+https://super-duper-lamp-r4rgpqwxx66gfpgp9-8501.app.github.dev/
+
+
+link google collab
+https://colab.research.google.com/drive/1Jn-9MO4WuO7qCWKG1eujd6dxXIFMXOBo?authuser=1#scrollTo=fvf-A6IibLDZ
+
+link drive data 
+https://drive.google.com/drive/folders/19A4vpZ11XguT8ypPyX8uLHP7Mwgdxbzn?usp=sharing
+
