@@ -8,7 +8,7 @@ import calendar
 
 
 #Gathering 2 data day and hour dashboard/data_siap.csvdashboard/data_siap.csv
-df = pd.read_csv("data/data/data_siap.csv")
+df = pd.read_csv("/data_siap.csv")
 day_df = pd.read_csv("data/data/day.csv")
 hour_df = pd.read_csv("data/data/hour.csv")
 
