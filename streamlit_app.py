@@ -8,21 +8,59 @@ import calendar
 
 
 #Gathering 2 data day and hour dashboard/data_siap.csvdashboard/data_siap.csv
-df = pd.read_csv("/data_siap.csv")
-day_df = pd.read_csv("data/data/day.csv")
-hour_df = pd.read_csv("data/data/hour.csv")
+df = pd.read_csv("data_siap.csv")
+
+#mendefinisikan Semua fungsi yang akan dipakai
+
+def count_by_day_df(df):
+    day_df_count_2011 = df.query(str('dteday >= "2011-01-01" and dteday < "2012-12-31"'))
+    return day_df_count_2011
+
+def total_registered_df(day_df):
+   reg_df =  day_df.groupby(by="dteday").agg({
+      "registered": "sum"
+    })
+   reg_df = reg_df.reset_index()
+   reg_df.rename(columns={
+        "registered": "register_sum"
+    }, inplace=True)
+   return reg_df
+
+def total_casual_df(day_df):
+   cas_df =  day_df.groupby(by="dteday").agg({
+      "casual": ["sum"]
+    })
+   cas_df = cas_df.reset_index()
+   cas_df.rename(columns={
+        "casual": "casual_sum"
+    }, inplace=True)
+   return cas_df
+
+datetime_columns = ["dteday"]
+df.sort_values(by="dteday", inplace=True)
+df.reset_index(inplace=True)   
+
+for column in datetime_columns:
+    df[column] = pd.to_datetime(df[column])
+
+min_date_days = df["dteday"].min()
+max_date_days = df["dteday"].max()
+
+
+
 
 # Navigation bar with "Beranda" (Home) and "Filter" options
 selected_page = st.sidebar.selectbox(
-    "Pilih Halaman (Select Page)",
-    options=["Beranda (Home)", "Filter (Filter)"])
+    "Pilih Halaman ",
+    options=["Beranda", "tampilkan data"])
 
-if selected_page == "Beranda (Home)":  
+if selected_page == "Beranda":  
     # Judul dashboard
     st.title("Dashboard ")
     st.write("Data Penyewa sepeda")
+
     # Menampilkan DataFrame
-    st.write("## Data hasil ")
+    st.write("## Data hasil bersih ")
     st.dataframe(df)
 
     # Statistik deskriptif
@@ -32,11 +70,10 @@ if selected_page == "Beranda (Home)":
 
 #filter memunculkan fitur yang diinginkan
 # Filter items dengan selectbox
-elif selected_page == "Filter (Filter)":
+elif selected_page == "tampilkan data":
     selected_filters = st.multiselect(
         "Pilih Filter",
-        options=["temp", "atemp", "weathersit", "year"],
-    )
+        options=["temp", "atemp", "weathersit", "year","weekday", "month", ])
 
     if "temp" in selected_filters:
         st.write("## Melihat Data Berdasarkan `temp`")
@@ -51,20 +88,6 @@ elif selected_page == "Filter (Filter)":
         ax.set_ylabel("Rata-rata cnt")
         st.pyplot(fig)
         st.write("pada temperatur tinggi terdapat banyak penyewa, sedangka apabila temperatur rendah sedikit")
-        # tampilkan histogram tiap bulannya
-        plt.figure(figsize=(9,6))
-        sns.boxplot(
-            x="mnth",
-            y="cnt",
-            data=df,
-            palette=["blue", "yellow", "purple", "pink", "red"]
-        )
-
-        plt.xlabel("Month")
-        plt.ylabel("Total Rides")
-        plt.title("Count by Year")
-        plt.show()
-
 
     if "atemp" in selected_filters:
         st.write("## Melihat Data Berdasarkan `atemp`")
@@ -109,20 +132,30 @@ elif selected_page == "Filter (Filter)":
         ax.set_ylabel("Rata-rata cnt")
         st.pyplot(fig)
 
-#menampilkan data
-df.describe()
-df.head()
+        # tampilkan histogram tiap minggunyaif "weekday" in selected_filters:
+    if "weekday" in selected_filters:
+        st.write("## Melihat Data Berdasarkan `weekday`")
+        st.write(df.groupby(by="yr").agg({
+            "instant": "nunique",
+            "cnt": ["max", "min", "mean", "std"]}))
+        st.write("# Pengaruh weekday terhadap cnt (jumlah penyewa)")
+        fig, ax = plt.subplots()
+        year_means = df.groupby('weekday')['cnt'].mean()
+        ax.bar(year_means.index, year_means.values)
+        ax.set_xlabel("weekday")
+        ax.set_ylabel("Rata-rata cnt")
+        st.pyplot(fig) 
 
-# tampilkan histogram tiap minggunya
-plt.figure(figsize=(9,6))
-sns.lineplot(
-    x="weekday",
-    y="cnt",
-    data=df,
-    palette=["navy","aqua", "yellow", "orange", "pink","magenta"]
-)
-
-plt.xlabel("weekday")
-plt.ylabel("Total Rides")
-plt.title("Count by weekday")
-plt.show()
+         # tampilkan histogram tiap bulannya
+    if "month" in selected_filters:
+        st.write("## Melihat Data Berdasarkan `mnth`")
+        st.write(df.groupby(by="mnth").agg({
+            "instant": "nunique",
+            "cnt": ["max", "min", "mean", "std"]}))
+        st.write("# Pengaruh Tahun terhadap cnt (jumlah penyewa)")
+        fig, ax = plt.subplots()
+        year_means = df.groupby('mnth')['cnt'].mean()
+        ax.bar(year_means.index, year_means.values)
+        ax.set_xlabel("month")
+        ax.set_ylabel("Rata-rata cnt")
+        st.pyplot(fig)
