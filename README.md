@@ -4,6 +4,6 @@ sudah saya run setiap kode nya. dan menyimpan datanya di dalam drive yang sudah 
 dan data yang baru hasil dari data wragling saya beri nama data_siap di dalam folder dashboard
 
 
-untuk membuka file hasil streamlit https://animated-palm-tree-69rg4qwppx9qh95p.github.dev/
-untuk kode program streamlit saya beri nama streamlit.app.py
+untuk membuka file hasil streamlit [https://animated-palm-tree-69rg4qwppx9qh95p.github.dev/](https://super-duper-lamp-r4rgpqwxx66gfpgp9-8501.app.github.dev/)
+untuk kode program streamlit saya beri nama streamlit_app.py
 
